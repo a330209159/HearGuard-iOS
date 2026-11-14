@@ -1,0 +1,9 @@
+{
+  "name": "HearGuard 突发性耳聋纯音测听与听力曲线系统",
+  "short_name": "HearGuard测听",
+  "description": "125Hz–8000Hz 低频往高频临床级纯音测听与双耳听力图随访工作台",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#0f172a"
+}

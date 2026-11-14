@@ -1,0 +1,1517 @@
+/* ==========================================================================
+   HearGuard Clinical Pure-Tone Audiometry & SSNHL Tracker Stylesheet
+   Calm, high-clarity medical UI tailored for auditory comfort & mobile/desktop use
+   ========================================================================== */
+
+:root {
+  --bg-page: #f1f5f9;
+  --bg-card: #ffffff;
+  --bg-subtle: #f8fafc;
+  --border-light: #e2e8f0;
+  --border-mid: #cbd5e1;
+
+  --text-main: #0f172a;
+  --text-secondary: #334155;
+  --text-muted: #64748b;
+
+  --primary: #0284c7;
+  --primary-hover: #0369a1;
+  --primary-soft: #e0f2fe;
+
+  --ear-right: #dc2626;
+  --ear-right-soft: #fef2f2;
+  --ear-left: #2563eb;
+  --ear-left-soft: #eff6ff;
+
+  --success: #059669;
+  --success-hover: #047857;
+  --warning: #d97706;
+  --danger: #dc2626;
+
+  --radius-lg: 14px;
+  --radius-md: 10px;
+  --radius-sm: 7px;
+  --shadow-card: 0 1px 3px rgba(15, 23, 42, 0.06), 0 4px 12px rgba(15, 23, 42, 0.03);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  background-color: var(--bg-page);
+  color: var(--text-main);
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Header & Navigation */
+.app-header {
+  background: #0f172a;
+  color: #f8fafc;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  box-shadow: 0 2px 12px rgba(15, 23, 42, 0.18);
+}
+
+.header-inner {
+  max-width: 1220px;
+  margin: 0 auto;
+  padding: 14px 20px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.brand-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.brand-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 11px;
+  background: linear-gradient(135deg, #0ea5e9, #2563eb);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.brand-title {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+}
+
+.brand-subtitle {
+  margin: 2px 0 0;
+  font-size: 0.78rem;
+  color: #94a3b8;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.status-pill {
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 5px 11px;
+  border-radius: 999px;
+  background: rgba(56, 189, 248, 0.15);
+  color: #7dd3fc;
+  border: 1px solid rgba(56, 189, 248, 0.3);
+}
+
+.status-pill.status-calibrated {
+  background: rgba(16, 185, 129, 0.18);
+  color: #6ee7b7;
+  border-color: rgba(16, 185, 129, 0.4);
+}
+
+.nav-tabs {
+  max-width: 1220px;
+  margin: 0 auto;
+  padding: 0 20px;
+  display: flex;
+  gap: 4px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.nav-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.nav-tab {
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  font-size: 0.88rem;
+  font-weight: 600;
+  padding: 10px 15px;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  transition: color 0.18s, border-color 0.18s;
+}
+
+.nav-tab:hover {
+  color: #e2e8f0;
+}
+
+.nav-tab.active {
+  color: #38bdf8;
+  border-bottom-color: #38bdf8;
+}
+
+.step-num {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: rgba(148, 163, 184, 0.22);
+  font-size: 0.74rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.nav-tab.active .step-num {
+  background: #0284c7;
+  color: #fff;
+}
+
+/* Main Container & Grid */
+.main-container {
+  max-width: 1220px;
+  margin: 0 auto;
+  padding: 20px 20px 56px;
+}
+
+.tab-panel {
+  display: none;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.tab-panel.active {
+  display: block;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(3px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.grid-2col {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+@media (max-width: 900px) {
+  .grid-2col {
+    grid-template-columns: 1fr;
+  }
+}
+
+.mt-12 { margin-top: 12px; }
+.mt-14 { margin-top: 14px; }
+.mt-16 { margin-top: 16px; }
+.mt-20 { margin-top: 20px; }
+.hidden { display: none !important; }
+
+/* Cards */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  box-shadow: var(--shadow-card);
+}
+
+.card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.card-header h2,
+.card-header h3 {
+  margin: 0;
+  font-size: 1.06rem;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.card-tag {
+  font-size: 0.74rem;
+  font-weight: 600;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: var(--primary-soft);
+  color: var(--primary-hover);
+  white-space: nowrap;
+}
+
+.card-desc,
+.text-muted {
+  margin: 0 0 12px;
+  font-size: 0.86rem;
+  color: var(--text-muted);
+}
+
+/* Medical Alert */
+.medical-alert {
+  background: linear-gradient(90deg, #fffbeb 0%, #fef3c7 100%);
+  border: 1px solid #fcd34d;
+  border-left: 4px solid #d97706;
+  border-radius: var(--radius-md);
+  padding: 14px 18px;
+  margin-bottom: 18px;
+}
+
+.alert-title {
+  font-weight: 700;
+  font-size: 0.92rem;
+  color: #92400e;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.alert-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #d97706;
+}
+
+.medical-alert p {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #78350f;
+}
+
+/* Toast */
+.toast-banner {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 120;
+  background: #0f172a;
+  color: #f8fafc;
+  padding: 12px 18px;
+  border-radius: 10px;
+  font-size: 0.88rem;
+  font-weight: 500;
+  box-shadow: 0 10px 25px rgba(15, 23, 42, 0.28);
+  max-width: 390px;
+  border-left: 4px solid #38bdf8;
+}
+
+/* Headphone Profile Selector */
+.profile-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+@media (max-width: 560px) {
+  .profile-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.profile-item {
+  border: 1.5px solid var(--border-light);
+  border-radius: var(--radius-md);
+  padding: 11px 13px;
+  cursor: pointer;
+  background: var(--bg-subtle);
+  text-align: left;
+  transition: all 0.16s ease;
+}
+
+.profile-item:hover {
+  border-color: #94a3b8;
+}
+
+.profile-item.selected {
+  border-color: var(--primary);
+  background: #f0f9ff;
+  box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.12);
+}
+
+.profile-item-title {
+  font-weight: 700;
+  font-size: 0.88rem;
+  color: var(--text-main);
+  margin-bottom: 3px;
+}
+
+.profile-item-sub {
+  font-size: 0.76rem;
+  color: var(--text-muted);
+  line-height: 1.38;
+}
+
+/* Forms & Buttons */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.form-select,
+.form-input {
+  width: 100%;
+  padding: 9px 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-mid);
+  font-size: 0.88rem;
+  color: var(--text-main);
+  background: #fff;
+}
+
+.form-select-sm {
+  padding: 5px 10px;
+  font-size: 0.82rem;
+  width: auto;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 9px 16px;
+  border-radius: var(--radius-sm);
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all 0.15s ease;
+  user-select: none;
+}
+
+.btn:active {
+  transform: scale(0.985);
+}
+
+.btn-sm {
+  padding: 6px 12px;
+  font-size: 0.8rem;
+}
+
+.btn-lg {
+  padding: 12px 22px;
+  font-size: 0.96rem;
+}
+
+.btn-xl {
+  padding: 16px 32px;
+  font-size: 1.06rem;
+  border-radius: 12px;
+}
+
+.btn-primary {
+  background: var(--primary);
+  color: #fff;
+}
+.btn-primary:hover {
+  background: var(--primary-hover);
+}
+
+.btn-success {
+  background: var(--success);
+  color: #fff;
+}
+.btn-success:hover {
+  background: var(--success-hover);
+}
+
+.btn-secondary {
+  background: #f1f5f9;
+  color: var(--text-secondary);
+  border-color: var(--border-mid);
+}
+.btn-secondary:hover {
+  background: #e2e8f0;
+}
+
+.btn-outline {
+  background: #fff;
+  color: var(--primary);
+  border-color: #7dd3fc;
+}
+.btn-outline:hover {
+  background: #f0f9ff;
+}
+
+.btn-danger-outline {
+  background: transparent;
+  color: #f87171;
+  border-color: rgba(248, 113, 113, 0.45);
+}
+.main-container .btn-danger-outline {
+  color: var(--danger);
+  border-color: #fca5a5;
+}
+.btn-danger-outline:hover {
+  background: rgba(239, 68, 68, 0.1);
+}
+
+.btn-ear-left {
+  background: var(--ear-left-soft);
+  color: var(--ear-left);
+  border-color: #93c5fd;
+}
+.btn-ear-left:hover,
+.btn-ear-left.active {
+  background: var(--ear-left);
+  color: #fff;
+}
+
+.btn-ear-right {
+  background: var(--ear-right-soft);
+  color: var(--ear-right);
+  border-color: #fca5a5;
+}
+.btn-ear-right:hover,
+.btn-ear-right.active {
+  background: var(--ear-right);
+  color: #fff;
+}
+
+.channel-check-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.ear-sym {
+  font-weight: 800;
+  font-size: 1rem;
+}
+
+.divider {
+  border: none;
+  border-top: 1px solid var(--border-light);
+  margin: 16px 0;
+}
+
+/* Ambient Noise Box */
+.ambient-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.ambient-header h3 {
+  margin: 0 0 4px;
+  font-size: 0.92rem;
+}
+
+.ambient-meter-wrap {
+  margin-top: 10px;
+  background: var(--bg-subtle);
+  padding: 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-light);
+}
+
+.meter-bar-bg {
+  height: 10px;
+  background: #e2e8f0;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.meter-bar-fill {
+  height: 100%;
+  background: #10b981;
+  transition: width 0.12s linear, background-color 0.2s;
+}
+
+.ambient-stats {
+  margin-top: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.82rem;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.badge {
+  font-size: 0.76rem;
+  font-weight: 600;
+  padding: 3px 9px;
+  border-radius: 999px;
+}
+.badge-ok { background: #dcfce7; color: #166534; }
+.badge-warn { background: #fef3c7; color: #92400e; }
+.badge-bad { background: #fee2e2; color: #991b1b; }
+.badge-neutral { background: #e2e8f0; color: #475569; }
+.badge-mask { background: #ede9fe; color: #5b21b6; }
+
+/* Calibration Tabs */
+.calib-tabs {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+@media (max-width: 780px) {
+  .calib-tabs {
+    grid-template-columns: 1fr;
+  }
+}
+
+.calib-mode-btn {
+  border: 1.5px solid var(--border-light);
+  background: var(--bg-subtle);
+  border-radius: var(--radius-md);
+  padding: 12px;
+  text-align: left;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.calib-mode-btn strong {
+  font-size: 0.88rem;
+  color: var(--text-main);
+}
+
+.calib-mode-btn span {
+  font-size: 0.76rem;
+  color: var(--text-muted);
+}
+
+.calib-mode-btn.active {
+  border-color: var(--primary);
+  background: #f0f9ff;
+}
+
+.calib-subpanel {
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  padding: 15px;
+}
+
+.calib-hint {
+  margin: 0 0 10px;
+  font-size: 0.86rem;
+  color: var(--text-secondary);
+}
+
+.calib-controls-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+@media (max-width: 640px) {
+  .calib-controls-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.slider-box {
+  background: #fff;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+}
+
+.slider-label-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.85rem;
+  margin-bottom: 8px;
+  gap: 8px;
+}
+
+.range-slider {
+  width: 100%;
+  accent-color: var(--primary);
+  cursor: pointer;
+}
+
+.calib-btn-row {
+  margin-top: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+.prep-footer-cta {
+  margin-top: 18px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* Tab 2: Pure-Tone Test Workspace */
+.config-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+@media (max-width: 960px) {
+  .config-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 540px) {
+  .config-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.masking-toggle-row {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border-light);
+}
+
+.checkbox-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.84rem;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+/* Frequency Low -> High Rail */
+.freq-rail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.freq-rail-title {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+
+.freq-progress-badge {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--primary);
+  background: var(--primary-soft);
+  padding: 3px 10px;
+  border-radius: 999px;
+}
+
+.freq-stepper-rail {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.freq-pill {
+  flex: 1;
+  min-width: 78px;
+  border: 1px solid var(--border-light);
+  background: var(--bg-subtle);
+  border-radius: var(--radius-sm);
+  padding: 7px 8px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.freq-pill:hover {
+  border-color: #94a3b8;
+}
+
+.freq-pill.current {
+  border-color: var(--primary);
+  background: #e0f2fe;
+  box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.16);
+}
+
+.freq-pill-hz {
+  font-weight: 700;
+  font-size: 0.86rem;
+  color: var(--text-main);
+}
+
+.freq-pill-ears {
+  margin-top: 4px;
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+.pill-l { color: var(--ear-left); }
+.pill-r { color: var(--ear-right); }
+.pill-pending { color: #cbd5e1; }
+
+/* Test Arena */
+.test-workspace {
+  display: grid;
+  grid-template-columns: 1.08fr 0.92fr;
+  gap: 18px;
+  align-items: stretch;
+}
+
+@media (max-width: 960px) {
+  .test-workspace {
+    grid-template-columns: 1fr;
+  }
+}
+
+.test-arena-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.arena-top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.ear-indicator {
+  font-weight: 700;
+  font-size: 0.92rem;
+  padding: 6px 14px;
+  border-radius: 999px;
+}
+.ear-indicator.ear-left {
+  background: var(--ear-left-soft);
+  color: var(--ear-left);
+  border: 1.5px solid #93c5fd;
+}
+.ear-indicator.ear-right {
+  background: var(--ear-right-soft);
+  color: var(--ear-right);
+  border: 1.5px solid #fca5a5;
+}
+.ear-indicator.ear-neutral {
+  background: #f1f5f9;
+  color: #475569;
+}
+
+.freq-display {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--text-main);
+}
+.freq-display small {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.freq-clinical-note {
+  margin: 10px 0 14px;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  background: var(--bg-subtle);
+  padding: 9px 12px;
+  border-radius: var(--radius-sm);
+}
+
+.arena-center-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px 10px;
+  text-align: center;
+}
+
+.arena-tip {
+  margin-top: 12px;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+}
+
+/* Giant Calm Tactile "I Heard It" Button */
+.heard-pad-btn {
+  position: relative;
+  width: 215px;
+  height: 215px;
+  border-radius: 50%;
+  border: 4px solid #38bdf8;
+  background: radial-gradient(circle at 35% 30%, #0ea5e9, #0369a1);
+  color: #ffffff;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 12px 30px rgba(2, 132, 199, 0.28);
+  transition: transform 0.1s ease, box-shadow 0.15s ease;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.heard-pad-btn:hover {
+  transform: scale(1.02);
+}
+
+.heard-pad-btn:active,
+.heard-pad-btn.pressed {
+  transform: scale(0.95);
+  background: radial-gradient(circle at 35% 30%, #10b981, #047857);
+  border-color: #6ee7b7;
+}
+
+.pulse-ring {
+  position: absolute;
+  inset: -10px;
+  border-radius: 50%;
+  border: 2px solid rgba(56, 189, 248, 0.35);
+  animation: calmBreath 3.2s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes calmBreath {
+  0%, 100% { transform: scale(0.98); opacity: 0.45; }
+  50% { transform: scale(1.05); opacity: 0.85; }
+}
+
+.heard-main-text {
+  font-size: 1.45rem;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+}
+
+.heard-sub-text {
+  font-size: 0.76rem;
+  opacity: 0.9;
+  max-width: 155px;
+  line-height: 1.3;
+}
+
+.live-status-text {
+  margin: 16px 0 6px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.trial-mini-info {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-bottom: 14px;
+}
+
+.arena-sub-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
+
+/* Manual Mode Controls */
+.manual-ear-switch {
+  display: flex;
+  gap: 8px;
+}
+
+.manual-freq-nav {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.manual-freq-select {
+  max-width: 180px;
+  font-weight: 700;
+}
+
+.manual-attenuator-box {
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  text-align: center;
+}
+
+.db-readout-label {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.db-readout-number {
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: var(--text-main);
+  margin: 2px 0;
+}
+.db-readout-number small {
+  font-size: 1rem;
+  color: var(--text-muted);
+}
+
+.attenuator-btns {
+  margin-top: 14px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.manual-extra-row {
+  margin-top: 14px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+
+.manual-commit-row {
+  margin-top: 16px;
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+/* Canvas Containers */
+.canvas-wrap {
+  width: 100%;
+  position: relative;
+}
+
+.live-canvas-wrap {
+  height: 375px;
+}
+
+.main-audiogram-wrap {
+  height: 510px;
+}
+
+.trend-canvas-wrap {
+  height: 265px;
+}
+
+@media (max-width: 600px) {
+  .main-audiogram-wrap {
+    height: 410px;
+  }
+}
+
+.canvas-wrap canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.chart-caption {
+  margin: 10px 0 0;
+  font-size: 0.8rem;
+  text-align: center;
+  color: var(--text-muted);
+}
+.legend-right { color: var(--ear-right); font-weight: 700; }
+.legend-left { color: var(--ear-left); font-weight: 700; }
+
+/* Tab 3: Report & Clinical Analysis */
+.report-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 14px 18px;
+}
+
+.toolbar-checks {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.baseline-select-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.84rem;
+  color: var(--text-secondary);
+}
+
+.toolbar-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.demo-bar {
+  background: #f0f9ff;
+  border: 1px dashed #7dd3fc;
+  border-radius: var(--radius-md);
+  padding: 11px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  font-size: 0.85rem;
+  color: #0369a1;
+}
+
+.demo-btns {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.clinical-symbol-legend {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.sym-pill {
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 999px;
+}
+.sym-right { background: var(--ear-right-soft); color: var(--ear-right); border: 1px solid #fecaca; }
+.sym-left { background: var(--ear-left-soft); color: var(--ear-left); border: 1px solid #bfdbfe; }
+
+.point-inspector {
+  margin-top: 12px;
+  background: #f8fafc;
+  border: 1.5px solid #93c5fd;
+  border-radius: var(--radius-md);
+  padding: 12px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.inspector-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* Threshold Table */
+.table-responsive {
+  overflow-x: auto;
+}
+
+.audiogram-table,
+.hospital-input-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+  text-align: center;
+}
+
+.audiogram-table th,
+.audiogram-table td,
+.hospital-input-table th,
+.hospital-input-table td {
+  border: 1px solid var(--border-light);
+  padding: 9px 8px;
+}
+
+.audiogram-table th,
+.hospital-input-table th {
+  background: var(--bg-subtle);
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.audiogram-table td:first-child,
+.audiogram-table th:first-child {
+  text-align: left;
+  padding-left: 14px;
+  white-space: nowrap;
+}
+
+.text-right-ear { color: var(--ear-right); font-weight: 700; }
+.text-left-ear { color: var(--ear-left); font-weight: 700; }
+
+/* Ear Summary Cards */
+.ear-card-right { border-top: 4px solid var(--ear-right); }
+.ear-card-left { border-top: 4px solid var(--ear-left); }
+
+.ear-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.ear-card-top h3 {
+  margin: 0;
+  font-size: 1.02rem;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ear-circle-icon { color: var(--ear-right); font-weight: 900; }
+.ear-cross-icon { color: var(--ear-left); font-weight: 900; }
+
+.grade-badge {
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 999px;
+}
+.grade-normal { background: #dcfce7; color: #166534; }
+.grade-mild { background: #fef9c3; color: #854d0e; }
+.grade-moderate { background: #ffedd5; color: #9a3412; }
+.grade-mod-severe { background: #fee2e2; color: #b91c1c; }
+.grade-severe { background: #fecaca; color: #7f1d1d; }
+.grade-profound { background: #450a0a; color: #fecaca; }
+.grade-unknown { background: #f1f5f9; color: #64748b; }
+
+.metrics-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.metric-item {
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-sm);
+  padding: 10px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+}
+
+.metric-label { font-size: 0.75rem; color: var(--text-muted); }
+.metric-item strong { font-size: 1.2rem; margin: 2px 0; color: var(--text-main); }
+.metric-item small { font-size: 0.7rem; color: #94a3b8; }
+
+.curve-type-box {
+  background: var(--bg-subtle);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+}
+
+.curve-type-label { font-size: 0.9rem; margin-bottom: 4px; }
+.curve-type-desc { margin: 0; font-size: 0.83rem; color: var(--text-secondary); }
+.focal-warn {
+  margin: 8px 0 0;
+  font-size: 0.81rem;
+  font-weight: 600;
+  color: #b45309;
+}
+
+/* Clinical Alerts & Efficacy */
+.alerts-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.clinical-alert-item {
+  padding: 12px 16px;
+  border-radius: var(--radius-md);
+  font-size: 0.86rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.clinical-alert-warn {
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  color: #92400e;
+}
+.clinical-alert-mask {
+  background: #f5f3ff;
+  border: 1px solid #ddd6fe;
+  color: #5b21b6;
+}
+
+.efficacy-banner {
+  border-radius: var(--radius-md);
+  padding: 14px 18px;
+  border: 1px solid #a7f3d0;
+  background: #ecfdf5;
+  color: #065f46;
+}
+
+/* Tags & Save Row */
+.quick-tags-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.tag-chip {
+  background: #f1f5f9;
+  border: 1px solid var(--border-mid);
+  border-radius: 999px;
+  padding: 4px 11px;
+  font-size: 0.78rem;
+  cursor: pointer;
+  color: var(--text-secondary);
+}
+.tag-chip:hover {
+  background: #e0f2fe;
+  border-color: #7dd3fc;
+  color: #0369a1;
+}
+
+.save-session-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+@media (max-width: 600px) {
+  .save-session-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+/* Tab 4: History & Tinnitus */
+.history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 460px;
+  overflow-y: auto;
+}
+
+.history-item {
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+  background: var(--bg-subtle);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.history-item-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.history-date {
+  font-weight: 700;
+  font-size: 0.88rem;
+}
+
+.history-metrics {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+}
+
+.history-note {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.history-btns {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+
+.tinnitus-top-controls {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.octave-check-row {
+  margin-top: 10px;
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.tin-log-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.81rem;
+  color: var(--text-secondary);
+}
+
+.tin-log-entry {
+  padding: 7px 10px;
+  background: var(--bg-subtle);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-light);
+  display: flex;
+  justify-content: space-between;
+}
+
+/* Tab 5: Research Prose */
+.prose-card h2 {
+  margin-top: 0;
+}
+
+.lead-p {
+  font-size: 0.94rem;
+  color: var(--text-secondary);
+}
+
+.research-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 16px;
+}
+
+@media (max-width: 820px) {
+  .research-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.research-item {
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  padding: 16px;
+}
+
+.research-item h3 {
+  margin: 0 0 8px;
+  font-size: 0.96rem;
+  color: var(--primary-hover);
+}
+
+.research-item p {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.guide-tips-box {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: var(--radius-md);
+  padding: 16px 20px;
+}
+
+.guide-tips-box h3 {
+  margin: 0 0 10px;
+  font-size: 0.98rem;
+  color: #166534;
+}
+
+.guide-tips-box ol {
+  margin: 0;
+  padding-left: 20px;
+  font-size: 0.86rem;
+  color: #14532d;
+}
+
+.guide-tips-box li {
+  margin-bottom: 6px;
+}
+
+/* Modal */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.55);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.modal-card {
+  background: #fff;
+  border-radius: var(--radius-lg);
+  max-width: 720px;
+  width: 100%;
+  padding: 22px;
+  box-shadow: 0 20px 45px rgba(15, 23, 42, 0.28);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.modal-header h3 {
+  margin: 0;
+}
+
+.modal-close-btn {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: var(--text-muted);
+}
+
+.hospital-input-table input {
+  width: 62px;
+  padding: 6px;
+  text-align: center;
+  border: 1px solid var(--border-mid);
+  border-radius: 5px;
+  font-size: 0.86rem;
+}
+
+.modal-footer {
+  margin-top: 18px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.file-btn-label {
+  cursor: pointer;
+}

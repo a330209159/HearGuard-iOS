@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#0f172a" />
+  <title>HearGuard · 突发性耳聋纯音测听与左右耳听力曲线系统 (125Hz–8000Hz)</title>
+  <link rel="manifest" href="./manifest.json" />
+  <link rel="stylesheet" href="./styles/main.css" />
+</head>
+<body>
+  <!-- Top App Header -->
+  <header class="app-header">
+    <div class="header-inner">
+      <div class="brand-group">
+        <div class="brand-icon" aria-hidden="true">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6 8.5a6.5 6.5 0 1 1 13 0c0 6-6 6-6 10a3.5 3.5 0 1 1-7 0"/>
+            <path d="M15 8.5a2.5 2.5 0 0 0-5 0v1a2 2 0 1 1 0 4"/>
+          </svg>
+        </div>
+        <div>
+          <h1 class="brand-title">HearGuard 临床级纯音测听工作台</h1>
+          <p class="brand-subtitle">突发性耳聋居家随访专版 · 125Hz → 8000Hz 低频往高频标准测绘 · 双耳听力曲线生成</p>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <span id="calibrationStatusBadge" class="status-pill status-preset">预设校准 · 入耳式</span>
+        <button id="btnEmergencyMute" class="btn btn-danger-outline btn-sm" title="立即停止所有音频输出 (快捷键 Esc)">
+          静音停止 (Esc)
+        </button>
+      </div>
+    </div>
+
+    <!-- Main Navigation Tabs -->
+    <nav class="nav-tabs" role="tablist" aria-label="功能导航">
+      <button class="nav-tab active" data-tab="tab-prep" role="tab" aria-selected="true">
+        <span class="step-num">1</span> 诊前准备与校准
+      </button>
+      <button class="nav-tab" data-tab="tab-test" role="tab" aria-selected="false">
+        <span class="step-num">2</span> 纯音测听 (125→8kHz)
+      </button>
+      <button class="nav-tab" data-tab="tab-report" role="tab" aria-selected="false">
+        <span class="step-num">3</span> 左右耳听力曲线图
+      </button>
+      <button class="nav-tab" data-tab="tab-history" role="tab" aria-selected="false">
+        <span class="step-num">4</span> 耳鸣匹配与康复档案
+      </button>
+      <button class="nav-tab" data-tab="tab-research" role="tab" aria-selected="false">
+        <span class="step-num">5</span> 研究依据与护耳指南
+      </button>
+    </nav>
+  </header>
+
+  <main class="main-container">
+    <!-- Toast Notification -->
+    <div id="toastBanner" class="toast-banner hidden" role="status" aria-live="polite"></div>
+
+    <!-- ===================================================================== -->
+    <!-- TAB 1: PREPARATION, CHANNEL CHECK, AMBIENT MONITOR & CALIBRATION      -->
+    <!-- ===================================================================== -->
+    <section id="tab-prep" class="tab-panel active">
+      <div class="medical-alert">
+        <div class="alert-title">
+          <span class="alert-dot"></span> 突发性耳聋（SSNHL）重要康复与护耳提醒
+        </div>
+        <p>
+          突发性耳聋发病后 <strong>72 小时至 2 周内为黄金救治窗口期</strong>，居家听力测试旨在帮您安全追踪低频/高频恢复趋势，<strong>不可替代医院耳鼻喉科标准隔声室纯音测听、声导抗与规范药物治疗</strong>。测试前请开启设备<strong>「免打扰模式」</strong>（防止突来消息提示音惊吓患耳），并关闭蓝牙耳机的「空间音频 / 音效均衡器 EQ / 辅助功能单声道音频」。
+        </p>
+      </div>
+
+      <div class="grid-2col">
+        <!-- Card 1: Headphone & Ear Situation -->
+        <div class="card">
+          <div class="card-header">
+            <h2>第一步：选择耳机声学模型与患耳情况</h2>
+            <span class="card-tag">ISO 389 等响补偿</span>
+          </div>
+          <p class="card-desc">
+            人耳对 <strong>125 Hz、250 Hz 低频</strong>的物理声压需求远高于 1000 Hz（相差可达 20–38 dB）。选择匹配的耳机换能器类型，系统将自动加载对应的参考等效阈声压级（RETSPL）频响补偿曲线。
+          </p>
+
+          <div id="headphoneProfileGrid" class="profile-grid">
+            <!-- Populated dynamically from HEADPHONE_PROFILES -->
+          </div>
+
+          <div class="form-group mt-16">
+            <label class="form-label" for="selectAffectedSide">当前哪侧耳朵出现突发性听力变化？（用于智能规划“先健侧后患侧”顺序）</label>
+            <select id="selectAffectedSide" class="form-select">
+              <option value="left">左耳突聋 / 耳闷（右耳听力正常或较好）</option>
+              <option value="right">右耳突聋 / 耳闷（左耳听力正常或较好）</option>
+              <option value="unknown">双耳受累 或 暂不确定（默认先右后左全面测绘）</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Card 2: Stereo Isolation & Ambient Noise Check -->
+        <div class="card">
+          <div class="card-header">
+            <h2>第二步：左右声道隔离校验与环境底噪检测</h2>
+            <span class="card-tag">防反戴 / 防低频掩蔽</span>
+          </div>
+          <p class="card-desc">
+            请先将电脑/手机系统音量调至 <strong>50% 左右</strong>，戴好双侧耳机，确认左右声道完全独立（若单侧测试时双耳都响，请检查系统设置是否误开了「单声道音频」）。
+          </p>
+
+          <div class="channel-check-row">
+            <button id="btnCheckLeft" class="btn btn-ear-left">
+              <span class="ear-sym">✕</span> 试听左耳声道 (L)
+            </button>
+            <button id="btnCheckRight" class="btn btn-ear-right">
+              <span class="ear-sym">O</span> 试听右耳声道 (R)
+            </button>
+          </div>
+
+          <hr class="divider" />
+
+          <div class="ambient-box">
+            <div class="ambient-header">
+              <div>
+                <h3>环境底噪与 125–250Hz 低频嗡声监测（可选）</h3>
+                <p class="text-muted">空调、风扇、冰箱常产生 100–250Hz 低频噪声，易掩盖 125Hz/250Hz 真实听阈。检测完全在浏览器本地完成，测听开始前会自动关闭麦克风以保障蓝牙高清立体声。</p>
+              </div>
+              <button id="btnToggleMic" class="btn btn-secondary btn-sm">开启噪音检测</button>
+            </div>
+            <div id="ambientMeterWrap" class="ambient-meter-wrap hidden">
+              <div class="meter-bar-bg">
+                <div id="ambientMeterFill" class="meter-bar-fill" style="width: 20%"></div>
+              </div>
+              <div class="ambient-stats">
+                <span id="ambientDbText">估算环境声级：-- dBA</span>
+                <span id="ambientLowFreqBadge" class="badge badge-neutral">等待采样...</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 3: Acoustic Calibration Wizard -->
+      <div class="card mt-20">
+        <div class="card-header">
+          <h2>第三步：声学零点校准（提升居家 dB HL 准确度的核心步骤）</h2>
+          <span class="card-tag">支持医院报告锚定</span>
+        </div>
+
+        <div class="calib-tabs">
+          <button class="calib-mode-btn active" data-calib="preset">
+            <strong>快捷标准预设</strong>
+            <span>保持系统音量 50%，直接采用标准耳机灵敏度模型</span>
+          </button>
+          <button class="calib-mode-btn" data-calib="healthy_ear">
+            <strong>健侧耳 1000Hz 生物校准（单侧突聋强烈推荐）</strong>
+            <span>利用健康好耳或医院报告锚定 0 dB HL 基准，消除设备硬件差异</span>
+          </button>
+          <button class="calib-mode-btn" data-calib="hand_rub">
+            <strong>搓手声生物校准法（Masalski 文献法）</strong>
+            <span>适合双耳受累时，用双掌轻搓声 (~55 dB) 建立响度标尺</span>
+          </button>
+        </div>
+
+        <!-- Preset Mode Panel -->
+        <div id="calibPanelPreset" class="calib-subpanel">
+          <p class="calib-hint">
+            已为您启用当前耳机类型的标准 RETSPL 校准参数（请确保设备系统音量固定在 <strong>50%</strong>，且后续每次复测保持同一耳机与同一音量格数，纵向对比恢复曲线即高度可靠）。
+          </p>
+          <button id="btnApplyPresetCalib" class="btn btn-outline btn-sm">重置为默认 50% 音量标准校准</button>
+        </div>
+
+        <!-- Healthy Ear Biological Calibration Panel -->
+        <div id="calibPanelHealthy" class="calib-subpanel hidden">
+          <div class="calib-controls-grid">
+            <div>
+              <label class="form-label" for="calibRefEar">选择用于校准的健康侧耳朵</label>
+              <select id="calibRefEar" class="form-select">
+                <option value="right">右耳 (R) — 作为健康参考耳</option>
+                <option value="left">左耳 (L) — 作为健康参考耳</option>
+              </select>
+            </div>
+            <div>
+              <label class="form-label" for="calibHospital1k">该参考耳在医院测得的 1000Hz 听阈（若未测保持默认 10 dB）</label>
+              <input id="calibHospital1k" type="number" min="-5" max="40" step="5" value="10" class="form-input" />
+            </div>
+          </div>
+
+          <div class="slider-box mt-14">
+            <div class="slider-label-row">
+              <span>调节 1000 Hz 校准脉冲音大小，直到健康耳<strong>「刚刚能隐约听见微弱嘀-嘀-嘀声」</strong>：</span>
+              <strong id="calibRawDbfsVal">-78 dBFS</strong>
+            </div>
+            <input id="calibRawSlider" type="range" min="-96" max="-35" step="1" value="-78" class="range-slider" />
+            <div class="calib-btn-row">
+              <button id="btnCalibStepDown" class="btn btn-secondary btn-sm">-2 dB 更轻</button>
+              <button id="btnPlayCalibTone" class="btn btn-primary">试听 1000Hz 校准脉冲音</button>
+              <button id="btnCalibStepUp" class="btn btn-secondary btn-sm">+2 dB 更响</button>
+              <button id="btnSaveHealthyCalib" class="btn btn-success">确认并锁定此校准基准</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Hand-Rub Calibration Panel -->
+        <div id="calibPanelHandRub" class="calib-subpanel hidden">
+          <p class="calib-hint">
+            <strong>操作方法（源自同伴评审移动测听研究）：</strong>保持安静，摘下一侧耳塞或微露缝隙，将干燥双手掌心在距离鼻尖约 5 cm 处轻轻快速对搓（该声音声压级稳定在约 55 dB SPL）；调节下方滑块，使耳机内的 1000 Hz 音与搓手声<strong>主观响度相等</strong>，然后点击锁定。
+          </p>
+          <div class="slider-box">
+            <div class="slider-label-row">
+              <span>匹配搓手声响度的数字电平：</span>
+              <strong id="handRubDbfsVal">-42 dBFS</strong>
+            </div>
+            <input id="handRubSlider" type="range" min="-70" max="-15" step="1" value="-42" class="range-slider" />
+            <div class="calib-btn-row">
+              <button id="btnPlayHandRubTone" class="btn btn-primary">播放 1000Hz 对比音</button>
+              <button id="btnSaveHandRubCalib" class="btn btn-success">响度已一致，锁定校准</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="prep-footer-cta">
+          <button id="btnGoToTest" class="btn btn-primary btn-lg">
+            准备就绪，开始 125Hz → 8000Hz 低频往高频测听 →
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- TAB 2: PURE-TONE AUDIOMETRY RUNNER (125 Hz -> 8000 Hz)                -->
+    <!-- ===================================================================== -->
+    <section id="tab-test" class="tab-panel">
+      <!-- Test Settings Bar -->
+      <div class="card config-strip">
+        <div class="config-grid">
+          <div>
+            <label class="form-label" for="selectFreqSet">测听频点序列（严格低频→高频）</label>
+            <select id="selectFreqSet" class="form-select">
+              <option value="standard">标准 7 频点：125 → 250 → 500 → 1k → 2k → 4k → 8k Hz</option>
+              <option value="extended">精细 11 频点：含 750 / 1.5k / 3k / 6k 半倍频程</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="form-label" for="selectEarOrder">左右耳测试顺序</label>
+            <select id="selectEarOrder" class="form-select">
+              <option value="healthy_first">智能推荐：先测健侧耳，再测患侧耳</option>
+              <option value="left_first">双耳完整：先左耳 (✕) → 后右耳 (O)</option>
+              <option value="right_first">双耳完整：先右耳 (O) → 后左耳 (✕)</option>
+              <option value="left_only">单侧复测：仅测左耳 (✕)</option>
+              <option value="right_only">单侧复测：仅测右耳 (O)</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="form-label" for="selectToneType">测试音波形（防耳鸣混淆）</label>
+            <select id="selectToneType" class="form-select">
+              <option value="pulsed">脉冲纯音（嘀-嘀-嘀，ISO 推荐首选）</option>
+              <option value="warble">调频啭音（±5% 调制，适合蝉鸣/纯音耳鸣明显者）</option>
+              <option value="continuous">连续平滑纯音（1.15秒纯正弦波）</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="form-label" for="selectMethodMode">定阈操作方式</label>
+            <select id="selectMethodMode" class="form-select">
+              <option value="auto">临床自动模式（改良 Hughson-Westlake 降10升5法）</option>
+              <option value="manual">自助精细微调模式（手动控制发声与 5dB 步进）</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="masking-toggle-row">
+          <label class="checkbox-label">
+            <input type="checkbox" id="chkEnableMasking" checked />
+            <span><strong>开启智能对侧窄带噪声掩蔽保护</strong>（当双耳听阈差距 ≥45 dB 时，自动向健侧耳播放轻柔“沙沙”窄带声，防止声音经颅骨传至好耳造成假性“影子听阈”）</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Frequency Progression Track (125 Hz -> 8000 Hz) -->
+      <div class="card mt-16">
+        <div class="freq-rail-header">
+          <span class="freq-rail-title">低频 → 高频测绘进度条</span>
+          <span id="freqProgressCounter" class="freq-progress-badge">待开始</span>
+        </div>
+        <div id="frequencyStepperRail" class="freq-stepper-rail">
+          <!-- Rendered dynamically -->
+        </div>
+      </div>
+
+      <!-- Main Testing Layout: Left Active Controller + Right Live Mini Audiogram -->
+      <div class="test-workspace mt-16">
+        <!-- Automated Mode Controller -->
+        <div id="autoModeArena" class="card test-arena-card">
+          <div class="arena-top-bar">
+            <div id="currentEarBadge" class="ear-indicator ear-neutral">准备开始</div>
+            <div id="currentFreqDisplay" class="freq-display">125 Hz <small>极低频起点</small></div>
+          </div>
+
+          <p id="currentFreqClinicalNote" class="freq-clinical-note">
+            点击下方「开始自动测听」后，系统将从 125 Hz 低频起步，按国际标准“降 10 dB、升 5 dB”自动收敛寻找您的最轻听阈。
+          </p>
+
+          <!-- Idle Start Overlay -->
+          <div id="autoStartPanel" class="arena-center-box">
+            <button id="btnStartAutoTest" class="btn btn-primary btn-xl">
+              开始 125Hz → 8000Hz 自动纯音测听
+            </button>
+            <p class="arena-tip">支持键盘 <strong>空格键 (Space)</strong> 或鼠标点击/触屏响应 · 全程无突发强声</p>
+          </div>
+
+          <!-- Running Response Pad -->
+          <div id="autoRunningPanel" class="arena-center-box hidden">
+            <button id="btnHeardResponse" class="heard-pad-btn" type="button">
+              <span class="pulse-ring"></span>
+              <span class="heard-main-text">我听到了</span>
+              <span class="heard-sub-text">听到微弱嘀嘀声即点按（或按 空格键）</span>
+            </button>
+            <p id="autoLiveStatusText" class="live-status-text">请静心聆听...</p>
+
+            <div class="trial-mini-info">
+              <span id="trialCountBadge">当前频点第 1 次给声</span>
+              <span id="maskingActiveBadge" class="badge badge-mask hidden">对侧窄带掩蔽已介入</span>
+            </div>
+
+            <div class="arena-sub-actions">
+              <button id="btnPauseResume" class="btn btn-secondary btn-sm">暂停</button>
+              <button id="btnRestartFreq" class="btn btn-secondary btn-sm" title="若刚才受耳鸣或外界杂音干扰，可重测当前频点">耳鸣干扰·重测此频点</button>
+              <button id="btnSkipNoResponse" class="btn btn-outline btn-sm" title="若已经觉得很久完全没声音，标记当前频点超出上限并进入下一频率">完全听不见·下一频点</button>
+              <button id="btnFinishEarly" class="btn btn-danger-outline btn-sm">结束并查看听力图</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Manual Self-Paced Fine-Tune Controller -->
+        <div id="manualModeArena" class="card test-arena-card hidden">
+          <div class="arena-top-bar">
+            <div class="manual-ear-switch">
+              <button id="btnManualEarLeft" class="btn btn-ear-left active">左耳 (✕)</button>
+              <button id="btnManualEarRight" class="btn btn-ear-right">右耳 (O)</button>
+            </div>
+            <div id="manualFreqTitle" class="freq-display">125 Hz</div>
+          </div>
+
+          <p class="freq-clinical-note">
+            自助微调法：点击「播放脉冲测试音」，用 <strong>-5 dB / +5 dB</strong> 调节音量，找到<strong>刚刚能隐约分辨出三声脉冲音</strong>的最小分贝值，点击「记录此频点听阈并升至下一频率」。
+          </p>
+
+          <div class="manual-freq-nav">
+            <button id="btnManualPrevFreq" class="btn btn-secondary btn-sm">← 上一低频</button>
+            <select id="selectManualFreq" class="form-select manual-freq-select"></select>
+            <button id="btnManualNextFreq" class="btn btn-secondary btn-sm">下一高频 →</button>
+          </div>
+
+          <div class="manual-attenuator-box">
+            <div class="db-readout-wrap">
+              <span class="db-readout-label">当前输出听力级</span>
+              <div id="manualDbValue" class="db-readout-number">30 <small>dB HL</small></div>
+              <span id="manualCeilingHint" class="text-muted">无失真上限: 70 dB HL</span>
+            </div>
+
+            <div class="attenuator-btns">
+              <button data-step="-10" class="btn btn-secondary manual-step-btn">-10 dB</button>
+              <button data-step="-5" class="btn btn-secondary manual-step-btn">-5 dB</button>
+              <button id="btnManualPlay" class="btn btn-primary btn-lg">▶ 播放测试音</button>
+              <button data-step="5" class="btn btn-secondary manual-step-btn">+5 dB</button>
+              <button data-step="10" class="btn btn-secondary manual-step-btn">+10 dB</button>
+            </div>
+
+            <div class="manual-extra-row">
+              <button id="btnManualCompareOpp" class="btn btn-outline btn-sm">在另一侧耳朵试听同音量对比</button>
+              <label class="checkbox-label">
+                <input type="checkbox" id="chkManualMask" />
+                <span>播放时向对侧加窄带掩蔽声</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="manual-commit-row">
+            <button id="btnManualMarkNR" class="btn btn-danger-outline">达上限仍无反应 (记为 NR)</button>
+            <button id="btnManualSavePoint" class="btn btn-success btn-lg">✓ 确认为此频点听阈，进入下一高频 →</button>
+          </div>
+        </div>
+
+        <!-- Live Real-Time Audiogram Preview Card -->
+        <div class="card live-chart-card">
+          <div class="card-header">
+            <h3>实时左右耳听力曲线预览</h3>
+            <button id="btnJumpFullReport" class="btn btn-outline btn-sm">查看完整分析报告 →</button>
+          </div>
+          <div class="canvas-wrap live-canvas-wrap">
+            <canvas id="liveAudiogramCanvas"></canvas>
+          </div>
+          <p class="chart-caption">
+            标准图例：<span class="legend-right">右耳 O (红线)</span> · <span class="legend-left">左耳 ✕ (蓝线)</span> · 越靠上方代表听力越敏锐
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- TAB 3: BILATERAL CLINICAL AUDIOGRAM & SSNHL ANALYSIS REPORT           -->
+    <!-- ===================================================================== -->
+    <section id="tab-report" class="tab-panel">
+      <!-- Toolbar & Demo Loaders -->
+      <div class="report-toolbar card">
+        <div class="toolbar-checks">
+          <label class="checkbox-label">
+            <input type="checkbox" id="chkShowBands" checked />
+            <span>WHO/临床分级色带</span>
+          </label>
+          <label class="checkbox-label">
+            <input type="checkbox" id="chkShowBanana" />
+            <span>言语香蕉图 (语音区)</span>
+          </label>
+          <label class="checkbox-label">
+            <input type="checkbox" id="chkShowAsymmetry" checked />
+            <span>双耳差值阴影</span>
+          </label>
+          <div class="baseline-select-wrap">
+            <label for="selectBaselineOverlay">叠加历史/医院基线：</label>
+            <select id="selectBaselineOverlay" class="form-select form-select-sm">
+              <option value="">不叠加对比曲线</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="toolbar-actions">
+          <button id="btnOpenHospitalModal" class="btn btn-secondary btn-sm">+ 录入医院测听单对比</button>
+          <button id="btnExportPng" class="btn btn-primary btn-sm">导出高清听力图报告 (PNG)</button>
+        </div>
+      </div>
+
+      <!-- Quick Sample Banner when no user test yet -->
+      <div id="emptyReportDemoBar" class="demo-bar mt-12">
+        <span>当前尚无测听记录，您可以直接前往「纯音测听」开始，或先预览临床典型突聋曲线样式：</span>
+        <div class="demo-btns">
+          <button id="btnDemoLowFreq" class="btn btn-outline btn-sm">预览：低频下降型突聋</button>
+          <button id="btnDemoHighFreq" class="btn btn-outline btn-sm">预览：高频下降型突聋</button>
+          <button id="btnClearCurrentData" class="btn btn-secondary btn-sm">清空画布</button>
+        </div>
+      </div>
+
+      <!-- Main Bilateral Audiogram Card -->
+      <div class="card mt-16">
+        <div class="card-header">
+          <div>
+            <h2>左右耳标准纯音气导听力曲线图 (Pure-Tone Audiogram)</h2>
+            <p class="text-muted">横轴：125 Hz → 8000 Hz 倍频程对数坐标 · 纵轴：听力级 dB HL（点击图上任意频点可单点重听或精细微调）</p>
+          </div>
+          <div class="clinical-symbol-legend">
+            <span class="sym-pill sym-right">右耳气导: O (掩蔽 △)</span>
+            <span class="sym-pill sym-left">左耳气导: ✕ (掩蔽 □)</span>
+          </div>
+        </div>
+
+        <div class="canvas-wrap main-audiogram-wrap">
+          <canvas id="mainAudiogramCanvas"></canvas>
+        </div>
+
+        <!-- Selected Frequency Quick Fine-Tune Drawer -->
+        <div id="pointInspectorBar" class="point-inspector hidden">
+          <div class="inspector-info">
+            <strong id="inspectorTitle">已选中 1000 Hz</strong>
+            <span id="inspectorValues" class="text-muted">左耳: -- | 右耳: --</span>
+          </div>
+          <div class="inspector-actions">
+            <button id="btnInspectPlayLeft" class="btn btn-ear-left btn-sm">试听左耳该阈值</button>
+            <button id="btnInspectPlayRight" class="btn btn-ear-right btn-sm">试听右耳该阈值</button>
+            <button id="btnInspectRetestLeft" class="btn btn-outline btn-sm">微调/重测左耳此点</button>
+            <button id="btnInspectRetestRight" class="btn btn-outline btn-sm">微调/重测右耳此点</button>
+            <button id="btnCloseInspector" class="btn btn-secondary btn-sm">收起</button>
+          </div>
+        </div>
+
+        <!-- Threshold Data Table (125 Hz -> 8000 Hz) -->
+        <div class="table-responsive mt-16">
+          <table id="thresholdDataTable" class="audiogram-table">
+            <!-- Populated dynamically -->
+          </table>
+        </div>
+      </div>
+
+      <!-- Longitudinal Efficacy Banner (shown when comparing with Baseline) -->
+      <div id="baselineComparisonBox" class="efficacy-banner hidden mt-16"></div>
+
+      <!-- Asymmetry & Cross-Hearing Clinical Alerts -->
+      <div id="clinicalAlertsContainer" class="alerts-stack mt-16"></div>
+
+      <!-- Left & Right Ear Clinical Summary Cards -->
+      <div class="grid-2col mt-16">
+        <!-- Right Ear Summary -->
+        <div class="card ear-report-card ear-card-right">
+          <div class="ear-card-top">
+            <h3><span class="ear-circle-icon">O</span> 右耳临床指标评估 (Right Ear)</h3>
+            <span id="rightSeverityBadge" class="grade-badge grade-unknown">未测</span>
+          </div>
+          <div class="metrics-row">
+            <div class="metric-item">
+              <span class="metric-label">四频平均 PTA</span>
+              <strong id="rightPtaVal">--</strong>
+              <small>500–4kHz</small>
+            </div>
+            <div class="metric-item">
+              <span class="metric-label">低频均值</span>
+              <strong id="rightLowVal">--</strong>
+              <small>125–500Hz</small>
+            </div>
+            <div class="metric-item">
+              <span class="metric-label">高频均值</span>
+              <strong id="rightHighVal">--</strong>
+              <small>2k–8kHz</small>
+            </div>
+          </div>
+          <div class="curve-type-box">
+            <div class="curve-type-label">曲线构型参考：<strong id="rightCurveType">暂无数据</strong></div>
+            <p id="rightCurveDetail" class="curve-type-desc">完成右耳测听后生成详细分型解析。</p>
+            <p id="rightFocalWarn" class="focal-warn hidden"></p>
+          </div>
+        </div>
+
+        <!-- Left Ear Summary -->
+        <div class="card ear-report-card ear-card-left">
+          <div class="ear-card-top">
+            <h3><span class="ear-cross-icon">✕</span> 左耳临床指标评估 (Left Ear)</h3>
+            <span id="leftSeverityBadge" class="grade-badge grade-unknown">未测</span>
+          </div>
+          <div class="metrics-row">
+            <div class="metric-item">
+              <span class="metric-label">四频平均 PTA</span>
+              <strong id="leftPtaVal">--</strong>
+              <small>500–4kHz</small>
+            </div>
+            <div class="metric-item">
+              <span class="metric-label">低频均值</span>
+              <strong id="leftLowVal">--</strong>
+              <small>125–500Hz</small>
+            </div>
+            <div class="metric-item">
+              <span class="metric-label">高频均值</span>
+              <strong id="leftHighVal">--</strong>
+              <small>2k–8kHz</small>
+            </div>
+          </div>
+          <div class="curve-type-box">
+            <div class="curve-type-label">曲线构型参考：<strong id="leftCurveType">暂无数据</strong></div>
+            <p id="leftCurveDetail" class="curve-type-desc">完成左耳测听后生成详细分型解析。</p>
+            <p id="leftFocalWarn" class="focal-warn hidden"></p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Save Session to Longitudinal Recovery Log -->
+      <div class="card mt-16">
+        <div class="card-header">
+          <h3>保存本次听力曲线至康复随访档案</h3>
+          <span class="card-tag">100% 本地隐私存储</span>
+        </div>
+        <div class="quick-tags-row">
+          <span class="text-muted">快捷症状/治疗标签：</span>
+          <button type="button" class="tag-chip" data-tag="耳闷感存在">耳闷感存在</button>
+          <button type="button" class="tag-chip" data-tag="耳闷较前减轻">耳闷较前减轻</button>
+          <button type="button" class="tag-chip" data-tag="伴低调嗡鸣">伴低调嗡鸣</button>
+          <button type="button" class="tag-chip" data-tag="伴高调蝉鸣">伴高调蝉鸣</button>
+          <button type="button" class="tag-chip" data-tag="糖皮质激素治疗期">糖皮质激素治疗期</button>
+          <button type="button" class="tag-chip" data-tag="鼓室注射后">鼓室注射后</button>
+          <button type="button" class="tag-chip" data-tag="高压氧治疗后">高压氧治疗后</button>
+        </div>
+        <div class="save-session-row mt-12">
+          <input id="inputSessionNote" type="text" class="form-input" placeholder="记录今日病程天数、耳鸣/耳闷感受或用药进展（例如：发病第4天，甲泼尼龙+金纳多，低频闷塞感好转）" />
+          <button id="btnSaveSession" class="btn btn-success">保存本次测听档案</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- TAB 4: TINNITUS MATCHER & RECOVERY HISTORY ARCHIVE                    -->
+    <!-- ===================================================================== -->
+    <section id="tab-history" class="tab-panel">
+      <!-- Longitudinal Trend Chart -->
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <h2>突聋康复纵向趋势图（低频 / 四频 PTA / 高频恢复轨迹）</h2>
+            <p class="text-muted">遵循临床听力图方向：折线越向上抬升，代表听阈分贝降低、听力正在恢复好转</p>
+          </div>
+          <div class="trend-controls">
+            <select id="selectTrendEar" class="form-select form-select-sm">
+              <option value="affected">自动聚焦受损侧耳</option>
+              <option value="left">查看左耳 (✕) 趋势</option>
+              <option value="right">查看右耳 (O) 趋势</option>
+            </select>
+          </div>
+        </div>
+        <div class="canvas-wrap trend-canvas-wrap">
+          <canvas id="recoveryTrendCanvas"></canvas>
+        </div>
+      </div>
+
+      <div class="grid-2col mt-20">
+        <!-- Saved Sessions Archive -->
+        <div class="card">
+          <div class="card-header">
+            <h2>历史测听与医院基准档案</h2>
+            <div class="archive-btns">
+              <button id="btnExportJson" class="btn btn-outline btn-sm">导出备份 JSON</button>
+              <label class="btn btn-secondary btn-sm file-btn-label">
+                导入备份
+                <input id="inputImportJson" type="file" accept=".json" hidden />
+              </label>
+            </div>
+          </div>
+          <div id="sessionHistoryList" class="history-list">
+            <!-- Populated dynamically -->
+          </div>
+        </div>
+
+        <!-- Tinnitus Pitch & Loudness Matcher -->
+        <div class="card">
+          <div class="card-header">
+            <h2>伴随耳鸣频率与音色自测匹配器</h2>
+            <span class="card-tag">含防八度混淆校验</span>
+          </div>
+          <p class="card-desc">
+            约 80% 以上的突发性耳聋患者伴有耳鸣（通常耳鸣主频就位于听力曲线受损最明显的频段附近）。通过匹配耳鸣音高，既便于向医生精准描述，也能帮您在纯音测听时区分自身耳鸣与测试音。
+          </p>
+
+          <div class="form-group">
+            <label class="form-label">耳鸣声性质与匹配耳别</label>
+            <div class="tinnitus-top-controls">
+              <select id="tinWaveform" class="form-select">
+                <option value="sine">单频纯音（蝉鸣声 / 电流哨音）</option>
+                <option value="nbn">窄带噪声（蒸汽声 / 风吹沙沙声 / 嗡嗡声）</option>
+              </select>
+              <select id="tinEar" class="form-select">
+                <option value="right">在健侧/右耳播放对比</option>
+                <option value="left">在健侧/左耳播放对比</option>
+                <option value="both">双耳同时播放</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="slider-box mt-12">
+            <div class="slider-label-row">
+              <span>耳鸣主频匹配 (125 Hz – 10,000 Hz)：</span>
+              <strong id="tinFreqReadout">4000 Hz</strong>
+            </div>
+            <input id="tinFreqSlider" type="range" min="0" max="1000" step="1" value="790" class="range-slider" />
+            <div class="octave-check-row">
+              <button id="btnTinHalfOctave" class="btn btn-secondary btn-sm">÷2 低八度校验</button>
+              <button id="btnTinTogglePlay" class="btn btn-primary">▶ 播放耳鸣匹配音</button>
+              <button id="btnTinDoubleOctave" class="btn btn-secondary btn-sm">×2 高八度校验</button>
+            </div>
+          </div>
+
+          <div class="slider-box mt-12">
+            <div class="slider-label-row">
+              <span>匹配响度（请从轻柔音量缓慢上调）：</span>
+              <strong id="tinDbReadout">30 dB HL</strong>
+            </div>
+            <input id="tinDbSlider" type="range" min="0" max="75" step="1" value="30" class="range-slider" />
+          </div>
+
+          <div class="save-session-row mt-12">
+            <select id="tinVasSelect" class="form-select">
+              <option value="2">耳鸣困扰度 VAS 2/10 (仅安静时微弱感知)</option>
+              <option value="4">耳鸣困扰度 VAS 4/10 (轻中度，可忽略)</option>
+              <option value="6">耳鸣困扰度 VAS 6/10 (中度持续，略影响专注)</option>
+              <option value="8">耳鸣困扰度 VAS 8/10 (明显响亮，影响入睡)</option>
+            </select>
+            <button id="btnSaveTinnitusLog" class="btn btn-success btn-sm">记录耳鸣特征</button>
+          </div>
+
+          <div id="tinnitusLogList" class="tin-log-list mt-12"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- TAB 5: LITERATURE SURVEY & SAFE HOME AUDIOMETRY GUIDE                 -->
+    <!-- ===================================================================== -->
+    <section id="tab-research" class="tab-panel">
+      <div class="card prose-card">
+        <h2>临床听力学与突发性耳聋居家测听研究综述（设计依据）</h2>
+        <p class="lead-p">
+          本系统在架构设计前系统调研了国际标准化组织测听规范（ISO 8253-1 / ISO 389）、中华医学会及美国耳鼻咽喉头颈外科学会（AAO-HNS）突发性耳聋临床实践指南，以及近年发表于 <em>JMIR</em>、<em>Ear and Hearing</em>、<em>International Journal of Audiology</em> 的移动/网页端自助纯音测听验证文献。核心工程化转化如下：
+        </p>
+
+        <div class="research-grid">
+          <div class="research-item">
+            <h3>1. 为什么必须从 125 Hz 低频测起？（而非普通筛查 App 的 500/1000 Hz）</h3>
+            <p>
+              多数消费级听力筛查软件忽略 <code>125 Hz</code> 甚至 <code>250 Hz</code>。然而根据<strong>《突发性聋诊断和治疗指南 (2015)》</strong>，<strong>低频下降型突聋</strong>（耳蜗顶回膜迷路积水）专门累及 <code>125–1000 Hz</code>，患者往往表现为强烈耳闷胀感、堵棉花感或听自己说话有回音，而 2000 Hz 以上完全正常。本应用严格按照您的需求设计为 <code>125 → 250 → 500 → 1000 → 2000 → 4000 → 8000 Hz</code> 低频至高频递进测试，完整覆盖耳蜗从顶回到底回的全部毛细胞映射区。
+            </p>
+          </div>
+
+          <div class="research-item">
+            <h3>2. 等响度/RETSPL 声学补偿与防削波谐波保护（ISO 389-1 / 389-8）</h3>
+            <p>
+              人耳在不同频率的听觉灵敏度差异巨大：在标准耳机耦合器下，<code>0 dB HL</code> 在 <code>1000 Hz</code> 仅需约 <code>5.5–7 dB SPL</code>，而在 <code>125 Hz</code> 则需要 <code>26–45 dB SPL</code>。若直接输出相同数字振幅，所有人测出的 125 Hz 都会呈现“假性低频耳聋”。此外，若低频正弦波触及数字满刻度（0 dBFS）发生削波（Clipping），会产生 <code>375 Hz / 625 Hz</code> 奇次谐波，导致低频聋患者误听到中频谐波而得出假正常结果。本引擎内置换能器 RETSPL 映射表与 <code>-1.0 dBFS</code> 零削波上限保护。
+            </p>
+          </div>
+
+          <div class="research-item">
+            <h3>3. 改良 Hughson-Westlake 算法与脉冲/啭音抗耳鸣干扰（ISO 8253-1）</h3>
+            <p>
+              临床纯音测听金标准采用改良 Hughson-Westlake 升降法（<strong>听见降 10 dB，未听见升 5 dB</strong>，上升序列同级 ≥50% 命中定阈）。针对突聋患者高达 80% 伴随持续性耳鸣的痛点，文献证实<strong>三连脉冲音（Pulsed Tone，含 35ms 平滑上升/下降沿消除咔嗒瞬态频谱飞溅）</strong>与<strong>±5% 调频啭音（Warble Tone）</strong>能提供清晰的时域起止节律，显著降低把自身耳鸣误判为测试音的假阳性率。
+            </p>
+          </div>
+
+          <div class="research-item">
+            <h3>4. 交叉听力（影子曲线）与对侧窄带掩蔽（Interaural Attenuation）</h3>
+            <p>
+              单侧中重度突聋测听时，当患耳给声强度超过健侧耳听阈 <code>40–55 dB</code>（耳间衰减值 IA）以上时，声波会振动颅骨直接传到对侧健康耳蜗，测出一条平行于健耳的假性“影子曲线”。本系统支持先测健耳建立个体生物学基线，并在双耳差值达到阈值时自动向健耳投送 1/3 倍频程窄带掩蔽噪声（NBN），并在听力图上规范标注临床掩蔽符号（右耳 <code>△</code>、左耳 <code>□</code>）。
+            </p>
+          </div>
+        </div>
+
+        <div class="guide-tips-box mt-20">
+          <h3>居家纵向监测准确性最大化 5 条金律</h3>
+          <ol>
+            <li><strong>固定同一副耳机与固定音量格数：</strong>居家复测最有价值的是观察“较前几天上升还是下降”。每次使用同一副入耳式或包耳式耳机、保持相同系统音量并配合「健侧耳 1000Hz 生物校准」，前后的相对误差可控制在 <code>±5 dB</code> 级别。</li>
+            <li><strong>避开低频家电底噪：</strong>测 <code>125 Hz</code> 和 <code>250 Hz</code> 时，请暂时关闭空调、空气净化器与风扇，深夜或安静卧室最佳。</li>
+            <li><strong>宁缺毋滥，不要猜按：</strong>测试设有随机静默间隔（0.95–2.15秒），只有确定捕捉到微弱的“嘀-嘀-嘀”节律时才按键。</li>
+            <li><strong>护耳第一，严禁大音量试探：</strong>突聋受损毛细胞常伴随“重振现象（Recruitment）”——小声听不见，声音稍大即震耳不适。切勿自行把系统音量开满。</li>
+            <li><strong>出现波动立即就医：</strong>若连续两天发现相邻两频率阈值下移 ≥15 dB，或耳闷、眩晕加重，请第一时间前往医院耳鼻咽喉科复查，切勿延误调整方案时机。</li>
+          </ol>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ===================================================================== -->
+  <!-- MODAL: IMPORT / ENTER HOSPITAL PURE-TONE AUDIOGRAM                    -->
+  <!-- ===================================================================== -->
+  <div id="hospitalModal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="hospitalModalTitle">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="hospitalModalTitle">录入医院纯音测听单（作为权威基线叠加对比）</h3>
+        <button id="btnCloseHospitalModal" class="modal-close-btn" aria-label="关闭">×</button>
+      </div>
+      <p class="text-muted">
+        将您在医院耳鼻喉科测听室拿到的纸质纯音听力图气导数值（单位 dB HL，通常标在每个频率点上，留空表示未测）填入下方，即可保存为「医院报告基准」，随时与居家康复曲线同图叠加比对！
+      </p>
+
+      <div class="table-responsive mt-12">
+        <table class="hospital-input-table">
+          <thead>
+            <tr>
+              <th>频率 (Hz)</th>
+              <th>125</th>
+              <th>250</th>
+              <th>500</th>
+              <th>1000</th>
+              <th>2000</th>
+              <th>4000</th>
+              <th>8000</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="text-right-ear"><strong>右耳 O (dB)</strong></td>
+              <td><input type="number" data-hosp-ear="right" data-hosp-freq="125" min="-10" max="110" step="5" placeholder="--" /></td>
+              <td><input type="number" data-hosp-ear="right" data-hosp-freq="250" min="-10" max="110" step="5" placeholder="--" /></td>
+              <td><input type="number" data-hosp-ear="right" data-hosp-freq="500" min="-10" max="110" step="5" placeholder="--" /></td>
+              <td><input type="number" data-hosp-ear="right" data-hosp-freq="1000" min="-10" max="110" step="5" placeholder="--" /></td>
+              <td><input type="number" data-hosp-ear="right" data-hosp-freq="2000" min="-10" max="110" step="5" placeholder="--" /></td>
+              <td><input type="number" data-hosp-ear="right" data-hosp-freq="4000" min="-10" max="110" step="5" placeholder="--" /></td>
+              <td><input type="number" data-hosp-ear="right" data-hosp-freq="8000" min="-10" max="110" step="5" placeholder="--" /></td>
+            </tr>
+            <tr>
+              <td class="text-left-ear"><strong>左耳 ✕ (dB)</strong></td>
+              <td><input type="number" data-hosp-ear="left" data-hosp-freq="125" min="-10" max="110" step="5" placeholder="--" /></td>
+              <td><input type="number" data-hosp-ear="left" data-hosp-freq="250" min="-10" max="110" step="5" placeholder="--" /></td>
+              <td><input type="number" data-hosp-ear="left" data-hosp-freq="500" min="-10" max="110" step="5" placeholder="--" /></td>
+              <td><input type="number" data-hosp-ear="left" data-hosp-freq="1000" min="-10" max="110" step="5" placeholder="--" /></td>
+              <td><input type="number" data-hosp-ear="left" data-hosp-freq="2000" min="-10" max="110" step="5" placeholder="--" /></td>
+              <td><input type="number" data-hosp-ear="left" data-hosp-freq="4000" min="-10" max="110" step="5" placeholder="--" /></td>
+              <td><input type="number" data-hosp-ear="left" data-hosp-freq="8000" min="-10" max="110" step="5" placeholder="--" /></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="form-group mt-12">
+        <label class="form-label" for="inputHospitalNote">检查日期与医院备注</label>
+        <input id="inputHospitalNote" type="text" class="form-input" placeholder="例如：初诊医院隔声室纯音测听基线" value="医院隔声室纯音测听报告" />
+      </div>
+
+      <div class="modal-footer">
+        <button id="btnCancelHospitalModal" class="btn btn-secondary">取消</button>
+        <button id="btnSaveHospitalReport" class="btn btn-primary">保存并设为对比基线</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="./js/app.js"></script>
+</body>
+</html>

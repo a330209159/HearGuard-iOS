@@ -1,0 +1,54 @@
+name: Build HearGuard iOS IPA
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  build-ios:
+    runs-on: macos-15
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run Clinical & DSP Unit Verification
+        run: |
+          swiftc -parse-as-library \
+            HearGuard/Models/AudiometryModels.swift \
+            HearGuard/DSP/AcousticMath.swift \
+            HearGuard/DSP/HughsonWestlakeEngine.swift \
+            HearGuard/DSP/ClinicalAnalyzer.swift \
+            Tests/verify_audiometry.swift \
+            -o /tmp/verify_audiometry
+          /tmp/verify_audiometry
+
+      - name: Build Native iOS App (ARM64 iphoneos)
+        run: |
+          xcodebuild \
+            -project HearGuard.xcodeproj \
+            -scheme HearGuard \
+            -configuration Release \
+            -sdk iphoneos \
+            -derivedDataPath build/DerivedData \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO \
+            AD_HOC_CODE_SIGNING_ALLOWED=YES \
+            clean build
+
+      - name: Package into HearGuard.ipa for AltServer
+        run: |
+          mkdir -p build/Payload
+          APP_PATH=$(find build/DerivedData -name "HearGuard.app" -type d | head -n 1)
+          echo "Found built app at: $APP_PATH"
+          cp -R "$APP_PATH" build/Payload/HearGuard.app
+          cd build
+          zip -r -9 HearGuard.ipa Payload
+
+      - name: Upload HearGuard.ipa Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: HearGuard-iOS-IPA
+          path: build/HearGuard.ipa
+          retention-days: 30
